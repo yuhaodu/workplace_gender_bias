@@ -33,45 +33,15 @@ idv_fail_effect_size: [0.022] #[0,0.01,0.02,0.03,0.04,0.05]
 mixed_succ_effect_size:  [0.022] #[0,0.01,0.02,0.03,0.04,0.05]
 mixed_fail_effect_size: [0.022] #[0,0.01,0.02,0.03,0.04,0.05] 
 
-#[0,0.00249377,0.00990099,0.02200489,0.03846154,0.05882353]
-
-# idv_succ_bias : [0] ##,0.1,0.2,0.3,0.4,0.5]
-# idv_fail_bias : [0] ##,0.1,0.2,0.3,0.4,0.5]
-# mixed_succ_bias : [0] ##,0.1,0.2,0.3,0.4,0.5]
-# mixed_fail_bias : [0] ## ,0.1,0.2,0.3,0.4,0.5]
-complaint_bias: [0.9]
-
-# project_promotability_boost_women_percent_of_men : [.98]
-
-# project_promotability_drop_women_percent_of_men : [.9]
-# # What percent of the full boost do women get if they work on a mixed team for project success
-# project_women_mixed_group_percent_drop_success :  [1]
-# # What percent of the full drop do women get if they work on a mixed team for project failure
-# project_women_mixed_group_percent_increase_failure : [1]
-
-# What percentage of women on team projects complain when they get less credit?
-project_women_percent_complain_on_mixed_success : [0]
 # What percentage of credit do you get after a complaint?
-# project_women_additional_promotability_percent_drop_on_complain :  [1]
+complaint_bias: [0.9]
+# What percentage of women complain after 
+project_women_percent_complain_on_mixed_success : [0]
+
+
 
 
 # How often is there a stretch project
 project_turns_per_stretch : [12]
-#[10,40,75,100,150,200,350,500]
 stretch_project_percentage : [0.1]
 
-# # What is the importance multiplier for stretch projects?
-# project_promotability_stretch_multiplier :  [2.]
-
-# # How many successes do men need to be considered for a stretch project
-# project_min_men_stretch_project : [1]
-
-# # How many successes do women need to be considered for a stretch project
-# project_min_women_stretch_project :  [3]
-
-# # How much do we multiply these minimums by as the level increases (x * project level)?
-# project_stretch_min_level_multiplier :   [.25]
-
-#project_prototype_percentage_threshold : [.2]
-#project_prototype_boost_bias_multiplier: [2]
-#project_prototype_drop_bias_multiplier:  [2]
