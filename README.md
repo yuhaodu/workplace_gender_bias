@@ -38,6 +38,6 @@ To replicate the results in Figure 4, please run the following code to generate 
 
 - ```python model.py ./parameters/intervention.yaml ./parameters/default_params_fig4.yaml ./results/intervention 100 6 ```
 
-To visualize the results, please use plot_paper.ipynb to generate figures of simulations. 
+To visualize the results, please run ```plot_paper.ipynb``` to generate figures of simulations. 
 
 
