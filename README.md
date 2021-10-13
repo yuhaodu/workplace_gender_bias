@@ -32,7 +32,7 @@ This is the beginnings of the gender simulation in the workplace code
 
 - To replicate the results in Figure 3, please run the following code to generate results for simulations:
 
-    - ```python model.py ./parameters/intervention.yaml ./parameters/default_params_fig3.yaml ./results/weight 100 6 ```
+    - ```python model.py ./parameters/weight.yaml ./parameters/default_params_fig3.yaml ./results/weight 100 6 ```
 
 - To replicate the results in Figure 4, please run the following code to generate results for simulations:
 
