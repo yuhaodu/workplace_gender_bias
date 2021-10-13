@@ -35,47 +35,6 @@ class Project():
         
 
 
-def project_function_factory(P,percent_women_at_above_level, type):
-
-    # TODO: I have to clean this up at some point
-    # Add in stereotype fit variables
-    if P.project_bias_type == 'threshold':
-        woman_boost_multiplier = P.project_promotability_boost_women_percent_of_men
-        woman_drop_multiplier = P.project_promotability_drop_women_percent_of_men
-        if percent_women_at_above_level < P.project_prototype_percentage_threshold:
-            woman_boost_multiplier = 1 - ((1- woman_boost_multiplier) * P.project_prototype_boost_bias_multiplier)
-            woman_drop_multiplier =  ((woman_drop_multiplier - 1) * P.project_prototype_drop_bias_multiplier) + 1
-    elif P.project_bias_type == 'micro_macro':
-        if percent_women_at_above_level >= 0.5:
-            woman_boost_multiplier,woman_drop_multiplier = 1,1
-        else:
-            bias = 0.5 - percent_women_at_above_level  # we can try different functions here
-            woman_boost_multiplier,woman_drop_multiplier = 1-bias,1+bias
-        # make woman_boost_multiplier a function of percent_women_at_above_level
-
-    if woman_boost_multiplier < 0:
-        woman_boost_multiplier = 0
-    if woman_drop_multiplier > 10:
-        woman_drop_multiplier = 10
-    if type == 'success':
-        return partial(simple_project_promotability,
-                       man_boost=(P.project_promotability_boost),
-                       woman_boost=(P.project_promotability_boost*woman_boost_multiplier),
-                       stretch_boost = P.project_promotability_stretch_multiplier,
-                       woman_mixed_group_diff=P.project_women_mixed_group_percent_drop_success,
-                       complaint_percentage=P.project_women_percent_complain_on_mixed_success,
-                       complaint_boost_impact=P.project_women_additional_promotability_percent_drop_on_complain
-                       )
-    elif type == 'fail':
-        return partial(simple_project_promotability,
-                       man_boost=-(P.project_promotability_drop),
-                       woman_boost=-(P.project_promotability_drop*woman_drop_multiplier),
-                       stretch_boost=P.project_promotability_stretch_multiplier,
-                       woman_mixed_group_diff=P.project_women_mixed_group_percent_increase_failure,
-                       complaint_percentage=0.,
-                       complaint_boost_impact=0.
-                       )
-    raise Exception("Not implemented project function")
     
     
 def effect_size_maker(percent_male_at_above_level,P,turn):
@@ -95,37 +54,30 @@ def effect_size_maker(percent_male_at_above_level,P,turn):
 
 def bias_function_factory(P,percent_male_at_above_level, type,turn):
 
-### Bias with downward causation
-    effect_size = effect_size_maker(percent_male_at_above_level,P,turn) # gender bias constitutes of proportion of variance
-    sign = - 1
-    if effect_size < 0: effect_size = -effect_size; sign = 1
-    idv_succ_bias = sign * math.sqrt(4 * effect_size / (1 - effect_size))
-    idv_fail_bias = sign * math.sqrt(4 * effect_size / (1 - effect_size))
-    mixed_succ_bias = sign * math.sqrt(4 * effect_size / (1 - effect_size))
-    mixed_fail_bias = sign *  math.sqrt(4 * effect_size / (1 - effect_size))
-
-### Fixed bias effect size
-#     sign = -1
-#     idv_succ_bias = sign * math.sqrt(4 * P.idv_succ_effect_size / (1 - P.idv_succ_effect_size))
-#     idv_fail_bias = sign * math.sqrt(4 * P.idv_fail_effect_size / (1 - P.idv_fail_effect_size))
-#     mixed_succ_bias = sign * math.sqrt(4 * P.mixed_succ_effect_size / (1 - P.mixed_succ_effect_size))
-#     mixed_fail_bias = sign * math.sqrt(4 * P.mixed_fail_effect_size / (1 - P.mixed_fail_effect_size))
-    
-### Fixed average bias
-#     idv_succ_bias = P.idv_succ_bias
-#     idv_fail_bias = P.idv_fail_bias 
-#     mixed_succ_bias = P.mixed_succ_bias
-#     mixed_fail_bias = P.mixed_fail_bias
+    if P.downward_causation:
+        effect_size = effect_size_maker(percent_male_at_above_level,P,turn) # gender bias constitutes of proportion of variance
+        sign = - 1
+        if effect_size < 0: effect_size = -effect_size; sign = 1
+        idv_succ_bias = sign * math.sqrt(4 * effect_size / (1 - effect_size))
+        idv_fail_bias = sign * math.sqrt(4 * effect_size / (1 - effect_size))
+        mixed_succ_bias = sign * math.sqrt(4 * effect_size / (1 - effect_size))
+        mixed_fail_bias = sign *  math.sqrt(4 * effect_size / (1 - effect_size))
+    else:
+        sign = -1
+        idv_succ_bias = sign * math.sqrt(4 * P.idv_succ_effect_size / (1 - P.idv_succ_effect_size))
+        idv_fail_bias = sign * math.sqrt(4 * P.idv_fail_effect_size / (1 - P.idv_fail_effect_size))
+        mixed_succ_bias = sign * math.sqrt(4 * P.mixed_succ_effect_size / (1 - P.mixed_succ_effect_size))
+        mixed_fail_bias = sign * math.sqrt(4 * P.mixed_fail_effect_size / (1 - P.mixed_fail_effect_size))
 
     if type == 'success':
-        return partial(complex_project_promotability,
+        return partial(project_promotability,
                         pure_gender_bias = idv_succ_bias,    # influence on female           
                         mix_group_bias = mixed_succ_bias,        # influence on female
                         complaint_percentage = P.project_women_percent_complain_on_mixed_success,
                         complaint_bias = P.complaint_bias           # influence on female
                        ),idv_succ_bias/P.project_reward_mean
     elif type == 'fail':
-        return partial(complex_project_promotability,             
+        return partial(project_promotability,             
                         pure_gender_bias = idv_fail_bias,                  
                         mix_group_bias = mixed_fail_bias,
                         complaint_percentage=0,
@@ -134,7 +86,7 @@ def bias_function_factory(P,percent_male_at_above_level, type,turn):
     raise Exception("Not implemented project function")
           
 
-def complex_project_promotability(proj,pure_gender_bias,mix_group_bias,complaint_percentage,complaint_bias):
+def project_promotability(proj,pure_gender_bias,mix_group_bias,complaint_percentage,complaint_bias):
     if proj.is_solo_project:
         if proj.agents[0].is_male:
             proj.agents[0].promotability_perception += proj.reward_penalty
@@ -164,50 +116,13 @@ def complex_project_promotability(proj,pure_gender_bias,mix_group_bias,complaint
                     if pure_gender_bias!= 0: a.numBias += 1
                     if mix_group_bias!=0: a.numBias += 1
 #                     a.promotability_perception += indiv_woman_boost
-                    if complaint_percentage > 0 and draw_binary(p=complaint_percentage) and (pure_gender_bias < 0 or mix_group_bias < 0):
+                    if complaint_percentage > 0 and draw_binary(p=complaint_percentage):# and (pure_gender_bias < 0 or mix_group_bias < 0):
                         indiv_woman_boost *= complaint_bias
 #                         a.promotability_perception *= complaint_bias
                         a.numBias += 1
                     a.promotability_perception += indiv_woman_boost
 
     
-
-
-def simple_project_promotability(proj,
-                                 man_boost,
-                                 woman_boost,
-                                 stretch_boost,
-                                 woman_mixed_group_diff,
-                                 complaint_percentage,
-                                 complaint_boost_impact):
-
-    if proj.is_stretch:
-        man_boost *= stretch_boost
-        woman_boost *= stretch_boost
-
-    if proj.is_solo_project:
-        if proj.agents[0].is_male:
-            proj.agents[0].promotability_perception += man_boost
-        else:
-            proj.agents[0].promotability_perception += woman_boost
-    else:
-        n_men = sum([a.is_male for a in proj.agents ])
-        n_women = sum([not a.is_male for a in proj.agents])
-        if n_men == 0:
-            for a in proj.agents:
-                a.promotability_perception += woman_boost
-        elif n_women == 0:
-            for a in proj.agents:
-                a.promotability_perception += man_boost
-        else:
-            for a in proj.agents:
-                if a.is_male:
-                    a.promotability_perception += man_boost
-                else:
-                    indiv_woman_boost = woman_boost
-                    if complaint_percentage > 0 and draw_binary(p=complaint_percentage):
-                        indiv_woman_boost = woman_boost*(complaint_boost_impact)
-                    a.promotability_perception += woman_mixed_group_diff*indiv_woman_boost
 
 def assign_projects_factory(P): # each project has equal weight
     if P.project_assignment_method == "equalSoloGroup":

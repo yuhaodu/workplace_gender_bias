@@ -1,5 +1,3 @@
-%load_ext autoreload
-%autoreload 2
 
 from util import *
 from entities import *
@@ -14,49 +12,15 @@ from IPython.core.debugger import set_trace
 import yaml
 import numpy as np
 
-
 def model_runner(chunk_data,default_params_dict,n_replications, output_folder):
-    effect_size = np.array([0,0.00249377,0.00990099,0.02200489,0.03846154,0.05882353]) * 2
     chunk_num, chunk = chunk_data
-#     turn_output_file = open(os.path.join(output_folder,"turn_output_{i}.tsv".format(i=chunk_num)),"w")
     for i,row in enumerate(chunk):
         if i % 1000 == 0:
             print chunk_num, i
-        # figure 1,2
-        stretch_bar = row['stretch_project_biased_bar']
-        complain = row['project_women_percent_complain_on_mixed_success']
-        reward_mean = row['project_reward_mean']
-        start,end = row['promotion_intervention_span']
-        w = row['promotion_intervention_norm']
-#         l = [macro_norm,stretch_bar,complain,reward_mean]
-#         if l[0] == 0.02 and l[1] == 1.01 and l[2] == 0.01: pass
-#         elif l[0] == 0.04 and l[1] == 1.02 and l[2] == 0.02: pass
-#         elif l[0] == 0.06 and l[1] == 1.03 and l[2] == 0.03: pass
-#         elif l[0] == 0.08 and l[1] == 1.04 and l[2] == 0.04: pass
-#         elif l[0] == 0.1 and l[1] == 1.05 and l[2] == 0.05: pass
-#         else: continue
-        # figure1,2
-        b1 = row['idv_succ_effect_size']
-        b2 = row['idv_fail_effect_size']
-        b3 = row['mixed_succ_effect_size']
-        b4 = row['mixed_fail_effect_size']
-        l = [b1,b2,b3,b4,complain,stretch_bar,reward_mean,start,end,w]
-#         if l[0] == l[1] == l[2] == l[3] == l[4]  == 0.01 and l[5] == 1.01: pass
-#         elif l[0] == l[1] == l[2] == l[3] == l[4]  == 0.03 and l[5] == 1.03: pass
-#         else: continue
-        
-        # figure 3
-#         start,end = row['promotion_intervention_span']
-#         norm = row['promotion_intervention_norm']
-#         reward_mean = row['project_reward_mean']
-#         l = [start,end,norm,reward_mean]
-
-
-        name = '_'.join([str(n) for n in l])
-#         turn_output_file = open(os.path.join(output_folder,"turn_output_{i}.tsv".format(i=chunk_num)),"w")
-        turn_output_file = open(os.path.join(output_folder,name + '.tsv'),"w")
-        turn_output_agent_file = open(os.path.join(output_folder,name + '_agent.tsv'),"w")
-        turn_output_promotion_file = open(os.path.join(output_folder,name + '_promotion.tsv'),"w")
+        file_name = output_folder.split('/')[-1]
+        turn_output_file = open(os.path.join(output_folder,file_name + '{}_detail.tsv'.format(chunk_num)),"w")
+#         turn_output_agent_file = open(os.path.join(output_folder,file_name + '{}_agent.tsv'.format(chunk_num)),"w")
+        turn_output_promotion_file = open(os.path.join(output_folder,file_name + '{}_promotion.tsv'.format(chunk_num)),"w")
         for replication in range(n_replications):
             print "\t", replication
             #print replication
@@ -65,15 +29,12 @@ def model_runner(chunk_data,default_params_dict,n_replications, output_folder):
             params_dict['replication_number'] = replication
             params_dict['run_number'] = int(params_dict['run_number'])
             params_dict['turn_output_file'] = turn_output_file
-            params_dict['turn_output_agent_file'] = turn_output_agent_file
+#             params_dict['turn_output_agent_file'] = turn_output_agent_file
             params_dict['turn_output_promotion_file'] = turn_output_promotion_file
             run_single_model(params_dict)
         turn_output_file.close()
-        turn_output_agent_file.close()
+#         turn_output_agent_file.close()
         turn_output_promotion_file.close()
-
-
-
 
 
 def run_single_model(params_dict):
@@ -100,8 +61,8 @@ def run_single_model(params_dict):
                             time_of_creation=0,
                            id=agent_id))
             agent_id +=1
+        
         company_hierarchy.append(l)
-
     # Okay, start the simulation
 
     # For each project cycle
@@ -158,7 +119,7 @@ def run_single_model(params_dict):
                     proj_failure_fn(project)
         # If its a promotion period
         if turn % P.projects_per_promotion_cycle == 0:
-
+#             print_agents_each_turn(P,company_hierarchy,turn)
             ### Compute the turnover at the company
             men_leave,women_leave = [],[]
             for level_iter, company_level in enumerate(company_hierarchy):
@@ -194,6 +155,7 @@ def run_single_model(params_dict):
                 # leave the remaining agents
                 company_hierarchy[level_iter + 1] = agents_remaining     
             ### Add new agents to the bottom
+
             new_agents = []
             initial_level_sex_fn = sex_function_factory(P, len(P.hierarchy_sizes)-1, turn)
 
@@ -204,27 +166,27 @@ def run_single_model(params_dict):
                                         id = agent_id))
                 agent_id +=1
             company_hierarchy[-1] = company_hierarchy[-1] + new_agents
+            
             print_stats_promotion(P, turn, company_hierarchy,men_leave,women_leave,men_promoted,women_promoted, bias_each_level)
 
     
-sys.argv = ['','minimal_nodownward.yaml',
-            'default_params.yaml',
-            'new_output',
-            '100',
-            '6',
-            '14260']
-
+# sys.argv = ['','minimal_nodownward.yaml',
+#             'default_params.yaml',
+#             'minimal_threshold_track_promotion_simple_leave',
+#             '100',
+#             '1',
+#             '14260']
 
 
 if __name__ == "__main__":
 
-    if len(sys.argv) != 6:
+    if len(sys.argv) != 5:
         print 'Usage: python model.py [path to experiment file] ',
         print '[path to default params file] [path to desired output folder] ',
-        print ' [n_replications_per_condition] [n_cores] [random seed]'
+        print ' [n_replications_per_condition] [n_cores]'
 
 
-    experiment_file, default_params_file, output_folder, n_replications, n_cores, rseed = sys.argv[1:]
+    experiment_file, default_params_file, output_folder, n_replications, n_cores = sys.argv[1:]
     default_params_dict = yaml.load(open(default_params_file))
     n_replications = int(n_replications)
     n_cores = int(n_cores)
