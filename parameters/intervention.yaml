@@ -1,0 +1,43 @@
+# intervention parameters
+stretch_intervention: [False]
+stretch_intervention_bar: [1]
+stretch_intervention_start: [0]
+
+stretch_project_biased_assignment: [False]
+stretch_project_biased_bar: [1.2]
+
+promotion_intervention: [True]
+promotion_intervention_bar : [0.7]
+promotion_intervention_span: [[168,240],[168,312],[168,384]]
+promotion_intervention_norm: [0.4,0.7,1] # intervention on norm of the company
+
+
+promotability_function_type : ["simple"]
+project_assignment_method : ["equalSoloGroupPromotability"]
+leave_function_type : ["simple"]
+project_bias_type: ["effect_size"] ## change to micro_macro ## or effect_size
+
+# Variables that are related to calculate effect size of the biases. 
+external_male_at_above_level: [.7]
+
+
+downward_causation: [True]
+macro_norm: [0.044]
+weight: [0.5]
+idv_succ_effect_size: [0] # [0,0.01,0.02,0.03,0.04,0.05] 
+idv_fail_effect_size: [0] #[0,0.01,0.02,0.03,0.04,0.05] 
+mixed_succ_effect_size:  [0] #[0,0.01,0.02,0.03,0.04,0.05]
+mixed_fail_effect_size: [0] #[0,0.01,0.02,0.03,0.04,0.05] 
+
+# What percentage of credit do you get after a complaint?
+complaint_bias: [0.9]
+# What percentage of women complain after 
+project_women_percent_complain_on_mixed_success : [0]
+
+
+
+
+# How often is there a stretch project
+project_turns_per_stretch : [12]
+stretch_project_percentage : [0.1]
+
