@@ -39,12 +39,12 @@ def scale_to_probability(x):
 
 
 def expand_grid(dictionary):
-    return pd.DataFrame([row for row in product(*dictionary.values())],
-                        columns=dictionary.keys())
+    return pd.DataFrame([row for row in product(*list(dictionary.values()))],
+                        columns=list(dictionary.keys()))
 
 
 def chunkify(lst,n):
-    return [lst[i::n] for i in xrange(n)]
+    return [lst[i::n] for i in range(n)]
 
 
 def gen_stats(agents):
