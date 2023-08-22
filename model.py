@@ -16,13 +16,13 @@ def model_runner(chunk_data,default_params_dict,n_replications, output_folder):
     chunk_num, chunk = chunk_data
     for i,row in enumerate(chunk):
         if i % 1000 == 0:
-            print chunk_num, i
+            print(chunk_num, i)
         file_name = output_folder.split('/')[-1]
         turn_output_file = open(os.path.join(output_folder,file_name + '{}_detail.tsv'.format(chunk_num)),"w")
 #         turn_output_agent_file = open(os.path.join(output_folder,file_name + '{}_agent.tsv'.format(chunk_num)),"w")
         turn_output_promotion_file = open(os.path.join(output_folder,file_name + '{}_promotion.tsv'.format(chunk_num)),"w")
         for replication in range(n_replications):
-            print "\t", replication
+            print("\t", replication)
             #print replication
             params_dict = default_params_dict.copy()
             params_dict.update(row)
@@ -181,33 +181,33 @@ def run_single_model(params_dict):
 if __name__ == "__main__":
 
     if len(sys.argv) != 5:
-        print 'Usage: python model.py [path to experiment file] ',
-        print '[path to default params file] [path to desired output folder] ',
-        print ' [n_replications_per_condition] [n_cores]'
+        print('Usage: python model.py [path to experiment file] ', end=' ')
+        print('[path to default params file] [path to desired output folder] ', end=' ')
+        print(' [n_replications_per_condition] [n_cores]')
 
 
     experiment_file, default_params_file, output_folder, n_replications, n_cores = sys.argv[1:]
-    default_params_dict = yaml.load(open(default_params_file))
+    default_params_dict = yaml.load(open(default_params_file), Loader=yaml.SafeLoader)
     n_replications = int(n_replications)
     n_cores = int(n_cores)
-    experiment_details = yaml.load(open(experiment_file))
+    experiment_details = yaml.load(open(experiment_file), Loader=yaml.SafeLoader)
     
-    print experiment_details
+    print(experiment_details)
     experimental_runs = expand_grid(experiment_details)
     experimental_runs = experimental_runs.reset_index().rename(index=str,columns={"index":"run_number"})
 
     try:
         os.mkdir(output_folder)
     except:
-        print "Not going to overwrite output!"
+        print("Not going to overwrite output!")
         #sys.exit(-1)
     ## use yaml files
     experimental_runs.to_csv(os.path.join(output_folder, "experiment_details.csv"),index=False)
     experimental_runs = [x[1].to_dict() for x in experimental_runs.iterrows()]
     
-    print(int(len(experimental_runs) / n_cores))
+    print((int(len(experimental_runs) / n_cores)))
     chunked = list(enumerate(chunkify(experimental_runs, n_cores)))
-    default_params_dict = yaml.load(open(default_params_file))
+    default_params_dict = yaml.load(open(default_params_file), Loader=yaml.SafeLoader)
     runner_partial = partial(model_runner,
                              default_params_dict=default_params_dict,
                              n_replications=n_replications,
