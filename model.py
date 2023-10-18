@@ -1,4 +1,3 @@
-
 from util import *
 from entities import *
 import yaml
@@ -169,7 +168,7 @@ def run_single_model(params_dict):
             
             print_stats_promotion(P, turn, company_hierarchy,men_leave,women_leave,men_promoted,women_promoted, bias_each_level)
 
-    
+
 # sys.argv = ['','minimal_nodownward.yaml',
 #             'default_params.yaml',
 #             'minimal_threshold_track_promotion_simple_leave',
